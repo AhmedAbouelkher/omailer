@@ -2,6 +2,7 @@ package omailer
 
 import (
 	"context"
+	"runtime/debug"
 
 	"gopkg.in/gomail.v2"
 )
@@ -96,11 +97,15 @@ func (d *Dialer) send(msg *EmailMessage) *EmailError {
 	m.SetHeader("Subject", msg.Subject)
 	m.SetBody("text/html", msg.Body)
 	n := gomail.NewDialer(d.Host, d.Port, d.Username, d.Password)
-	return newEmailError(n.DialAndSend(m))
+	if err := n.DialAndSend(m); err != nil {
+		return newEmailError(err)
+	}
+	return nil
 }
 
 type EmailError struct {
-	err error
+	err   error
+	Stack string
 }
 
 func (e *EmailError) Error() string {
@@ -108,5 +113,6 @@ func (e *EmailError) Error() string {
 }
 
 func newEmailError(err error) *EmailError {
-	return &EmailError{err: err}
+	stack := string(debug.Stack())
+	return &EmailError{err: err, Stack: stack}
 }
