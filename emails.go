@@ -2,7 +2,6 @@ package omailer
 
 import (
 	"context"
-	"time"
 
 	"gopkg.in/gomail.v2"
 )
@@ -96,10 +95,8 @@ func (d *Dialer) send(msg *EmailMessage) *EmailError {
 	m.SetHeader("To", msg.To)
 	m.SetHeader("Subject", msg.Subject)
 	m.SetBody("text/html", msg.Body)
-	// n := gomail.NewDialer(d.Host, d.Port, d.Username, d.Password)
-	// return newEmailError(n.DialAndSend(m))
-	<-time.After(time.Millisecond)
-	return nil
+	n := gomail.NewDialer(d.Host, d.Port, d.Username, d.Password)
+	return newEmailError(n.DialAndSend(m))
 }
 
 type EmailError struct {
